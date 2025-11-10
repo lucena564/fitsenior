@@ -26,7 +26,6 @@ export const ProtectedRoute = ({
       const {
         data: { session },
       } = await supabase.auth.getSession();
-
       if (!session) {
         setIsAuthenticated(false);
         setLoading(false);

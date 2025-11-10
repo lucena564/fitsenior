@@ -25,6 +25,7 @@ const ClassDetails = () => {
   const [enrollmentCount, setEnrollmentCount] = useState(0);
   const [isEnrolled, setIsEnrolled] = useState(false);
   const [forumMessages, setForumMessages] = useState<any[]>([]);
+  const [classmates, setClassmates] = useState<any[]>([]);
 
   useEffect(() => {
     fetchClassDetails();
@@ -35,6 +36,7 @@ const ClassDetails = () => {
     if (isEnrolled) {
       fetchForumMessages();
       subscribeToForum();
+      fetchClassmates();
     }
   }, [isEnrolled]);
 
@@ -75,6 +77,53 @@ const ClassDetails = () => {
     }
   };
 
+  const fetchClassmates = async () => {
+    try {
+      // 1. Busca os enrollments da turma
+      const { data: enrollments, error: enrollError } = await supabase
+        .from("enrollments")
+        .select("id, student_id")
+        .eq("class_id", id)
+        .eq("status", "active");
+
+      if (enrollError) throw enrollError;
+
+      if (!enrollments || enrollments.length === 0) {
+        setClassmates([]);
+        return;
+      }
+
+      // 2. Busca os dados dos estudantes usando os user_ids
+      const studentIds = enrollments.map((e) => e.student_id);
+
+      const { data: students, error: studentsError } = await supabase
+        .from("students")
+        .select("user_id, full_name, email, phone, gender")
+        .in("user_id", studentIds);
+
+      if (studentsError) throw studentsError;
+
+      // 3. Combina os dados
+      const classmates = enrollments.map((enrollment) => {
+        const student = students?.find(
+          (s) => s.user_id === enrollment.student_id
+        );
+
+        return {
+          enrollment_id: enrollment.id,
+          student_id: enrollment.student_id,
+          full_name: student?.full_name || "Nome não encontrado",
+          email: student?.email,
+          phone: student?.phone,
+          gender: student?.gender,
+        };
+      });
+
+      setClassmates(classmates);
+    } catch (error: any) {
+      console.error("Error fetching classmates:", error);
+    }
+  };
   const checkEnrollment = async () => {
     try {
       const {
@@ -269,6 +318,43 @@ const ClassDetails = () => {
 
             {isEnrolled && (
               <>
+                <Separator />
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <Users className="h-5 w-5" />
+                    <h3 className="text-xl font-semibold">
+                      Participantes da Turma
+                    </h3>
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    {classmates.length}{" "}
+                    {classmates.length === 1
+                      ? "aluno matriculado"
+                      : "alunos matriculados"}
+                  </p>
+
+                  <div className="grid gap-2">
+                    {classmates.length === 0 ? (
+                      <p className="text-center text-muted-foreground py-4">
+                        Nenhum participante encontrado
+                      </p>
+                    ) : (
+                      classmates.map((mate: any) => (
+                        <Card key={mate.id + mate.full_name}>
+                          <CardContent className="py-3 px-4">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <span className="font-medium">
+                                {mate.full_name || "Alune"}
+                              </span>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      ))
+                    )}
+                  </div>
+                </div>
+
                 <Separator />
                 <div className="space-y-4">
                   <div className="flex items-center gap-2">

@@ -57,7 +57,7 @@ const Header = () => {
 
   const navItemsStudents = [{ path: "/buscar-aulas", label: "Buscar Aulas" }];
   const navItemsProfessionals = [
-    { path: "/cadastrar-aulas", label: "Para Profissionais" },
+    { path: "/cadastrar-aulas", label: "Cadastrar aula" },
     {
       path: "/dashboard",
       label: "Dashboard",
