@@ -11,6 +11,7 @@ interface Contact {
   id: string;
   name: string;
   type: "student" | "professional";
+  avatar_url: string;
 }
 
 interface Message {
@@ -117,7 +118,8 @@ const PrivateChat = () => {
           professional_id,
           professionals (
             user_id,
-            full_name
+            full_name,
+            avatar_url
           )
         )
       `
@@ -138,6 +140,7 @@ const PrivateChat = () => {
           id: prof.user_id,
           name: prof.full_name,
           type: "professional",
+          avatar_url: prof.avatar_url,
         });
       }
     });
@@ -173,7 +176,7 @@ const PrivateChat = () => {
 
     const { data: students, error: studentsError } = await supabase
       .from("students")
-      .select("user_id, full_name")
+      .select("user_id, full_name, avatar_url")
       .in("user_id", uniqueStudentIds);
 
     if (studentsError) throw studentsError;
@@ -183,6 +186,7 @@ const PrivateChat = () => {
         id: student.user_id,
         name: student.full_name,
         type: "student" as const,
+        avatar_url: student.avatar_url,
       })) || [];
 
     setContacts(contactsList);
@@ -303,7 +307,16 @@ const PrivateChat = () => {
                         selectedContact?.id === contact.id ? "bg-accent" : ""
                       }`}
                     >
-                      <User className="h-5 w-5 text-muted-foreground" />
+                      {contact.avatar_url ? (
+                        <img
+                          className="h-7 w-7 text-muted-foreground rounded-full"
+                          src={contact.avatar_url}
+                          alt={`photo-of-${contact.name}`}
+                        />
+                      ) : (
+                        <User className="h-5 w-5 text-muted-foreground" />
+                      )}
+
                       <span className="font-medium">{contact.name}</span>
                     </button>
                   ))
@@ -318,7 +331,15 @@ const PrivateChat = () => {
               <>
                 <CardHeader className="border-b">
                   <CardTitle className="flex items-center gap-2">
-                    <User className="h-5 w-5" />
+                    {selectedContact.avatar_url ? (
+                      <img
+                        className="h-8 w-8 text-muted-foreground rounded-full"
+                        src={selectedContact.avatar_url}
+                        alt={`photo-of-${selectedContact.name}`}
+                      />
+                    ) : (
+                      <User className="h-5 w-5" />
+                    )}
                     {selectedContact.name}
                   </CardTitle>
                 </CardHeader>

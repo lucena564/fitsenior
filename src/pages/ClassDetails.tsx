@@ -105,7 +105,7 @@ const ClassDetails = () => {
 
       const { data: students, error: studentsError } = await supabase
         .from("students")
-        .select("user_id, full_name, email, phone, gender")
+        .select("user_id, full_name, email, phone, gender, avatar_url")
         .in("user_id", studentIds);
 
       if (studentsError) throw studentsError;
@@ -123,6 +123,7 @@ const ClassDetails = () => {
           email: student?.email,
           phone: student?.phone,
           gender: student?.gender,
+          avatar_url: student.avatar_url,
         };
       });
 
@@ -364,9 +365,13 @@ const ClassDetails = () => {
                         <Card key={mate.id + mate.full_name}>
                           <CardContent className="py-3 px-4">
                             <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
+                              <img
+                                className="h-7 w-7 text-muted-foreground rounded-full"
+                                src={mate.avatar_url}
+                                alt={`photo-of-${mate.name}`}
+                              />
                               <span className="font-medium">
-                                {mate.full_name || "Alune"}
+                                {mate.full_name || "Aluno"}
                               </span>
                             </div>
                           </CardContent>
