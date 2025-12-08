@@ -54,33 +54,40 @@ const CreateClass = () => {
     level: "",
   });
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-      if (!user) {
-        navigate("/auth");
-        return;
-      }
+useEffect(() => {
+  const checkAuth = async () => {
+    const {
+      data: { user },
+    } = await supabase.auth.getUser();
 
-      // ✅ CORREÇÃO 1: Busca user_id em vez de id
-      const { data: prof } = await supabase
-        .from("professionals")
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle();
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
 
-      if (!prof) {
-        navigate("/cadastro-profissional");
-        return;
-      }
+    const { data: prof, error: profError } = await supabase
+      .from("professionals")
+      .select("id, user_id")
+      .eq("user_id", user.id)
+      .maybeSingle();
 
-      setProfessionalId(prof.user_id); // ✅ Usa user_id
-    };
+    if (profError) {
+      console.error(profError);
+      navigate("/cadastro-profissional");
+      return;
+    }
 
-    checkAuth();
-  }, [navigate]);
+    if (!prof) {
+      navigate("/cadastro-profissional");
+      return;
+    }
+
+    setProfessionalId(prof.id); // ✅ agora é o id da tabela professionals
+  };
+
+  checkAuth();
+}, [navigate]);
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -101,7 +108,7 @@ const CreateClass = () => {
     }
 
     setLoading(true);
-
+console.log("professionalId enviado no INSERT:", professionalId);
     try {
       const { error } = await supabase.from("classes").insert({
         professional_id: professionalId,
