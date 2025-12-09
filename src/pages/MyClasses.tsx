@@ -63,7 +63,7 @@ const MyClasses = () => {
         `
         )
         .eq("student_id", user.id)
-        .eq("status", "active");
+        .eq("status", "enrolled");
 
       if (enrollError) throw enrollError;
 

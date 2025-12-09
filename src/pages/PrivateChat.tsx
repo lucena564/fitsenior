@@ -125,7 +125,7 @@ const PrivateChat = () => {
       `
       )
       .eq("student_id", userId)
-      .eq("status", "active");
+      .eq("status", "enrolled");
 
     if (error) throw error;
 
@@ -161,7 +161,7 @@ const PrivateChat = () => {
       `
       )
       .eq("classes.professional_id", professionalId)
-      .eq("status", "active");
+      .eq("status", "enrolled");
 
     if (error) throw error;
 
@@ -176,7 +176,8 @@ const PrivateChat = () => {
 
     const { data: students, error: studentsError } = await supabase
       .from("students")
-      .select("user_id, full_name, avatar_url")
+      //.select("user_id, full_name, avatar_url")
+      .select("user_id, full_name")
       .in("user_id", uniqueStudentIds);
 
     if (studentsError) throw studentsError;
@@ -186,7 +187,7 @@ const PrivateChat = () => {
         id: student.user_id,
         name: student.full_name,
         type: "student" as const,
-        avatar_url: student.avatar_url,
+        avatar_url: ""//student.avatar_url
       })) || [];
 
     setContacts(contactsList);
@@ -246,7 +247,7 @@ const PrivateChat = () => {
       const { error } = await supabase.from("private_messages").insert({
         sender_id: currentUserId,
         recipient_id: selectedContact.id,
-        message: newMessage.trim(),
+        content: newMessage.trim(),
       });
 
       if (error) throw error;
@@ -256,7 +257,7 @@ const PrivateChat = () => {
         id: crypto.randomUUID(),
         sender_id: currentUserId,
         recipient_id: selectedContact.id,
-        message: newMessage.trim(),
+        content: newMessage.trim(),
         created_at: new Date().toISOString(),
       };
       setMessages((prev) => [...prev, newMsg]);
@@ -365,7 +366,7 @@ const PrivateChat = () => {
                               : "bg-muted"
                           }`}
                         >
-                          <p className="text-sm">{msg.message}</p>
+                          <p className="text-sm">{msg.content}</p>
                           <span className="text-xs opacity-70">
                             {new Date(msg.created_at).toLocaleTimeString(
                               "pt-BR",

@@ -9,6 +9,7 @@ interface AuthContextType {
   role: UserRole;
   loading: boolean;
   signOut: () => Promise<void>;
+  fetchRole: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,13 +36,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     };
   }, []);
 
-  useEffect(() => {
-    if (!user) {
-      setRole(null);
-      return;
-    }
-
-    const fetchRole = async () => {
+  const fetchRole = async () => {
       // Verifica se é estudante
       const { data: student } = await supabase
         .from("students")
@@ -67,19 +62,25 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
 
      // Fallback: ler role direto da tabela profiles (coluna role)
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("role")
-        .eq("id", user.id)
-        .maybeSingle();
+      // const { data: profile } = await supabase
+      //   .from("profiles")
+      //   .select("role")
+      //   .eq("id", user.id)
+      //   .maybeSingle();
 
-      if (profile?.role) {
-        const mapped: UserRole =
-          profile.role === "instructor" ? "professional" : (profile.role as UserRole);
-        setRole(mapped);
-        return;
-      }
+      // if (profile?.role) {
+      //   const mapped: UserRole =
+      //     profile.role === "instructor" ? "professional" : (profile.role as UserRole);
+      //   setRole(mapped);
+      //   return;
+      // }
     };
+
+  useEffect(() => {
+    if (!user) {
+      setRole(null);
+      return;
+    }
 
     fetchRole();
   }, [user]);
@@ -89,7 +90,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, role, loading, signOut }}>
+    <AuthContext.Provider value={{ user, role, loading, signOut, fetchRole }}>
       {children}
     </AuthContext.Provider>
   );

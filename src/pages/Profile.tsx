@@ -38,6 +38,7 @@ interface ProfessionalData {
   cref: string;
   specialty: string;
   avatar_url: string | null;
+  email: string;
 }
 
 export default function Profile() {
@@ -163,6 +164,7 @@ export default function Profile() {
       .update({
         full_name: professionalData.full_name,
         specialty: professionalData.specialty,
+        email: professionalData.email
       })
       .eq("user_id", session?.user.id);
 
@@ -565,6 +567,20 @@ export default function Profile() {
                         ...professionalData,
                         specialty: e.target.value,
                       })
+                    }
+                  />
+                </div>
+                 <div className="space-y-2">
+                  <Label htmlFor="email" className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    E-mail
+                  </Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={professionalData.email}
+                    onChange={(e) =>
+                      setProfessionalData({ ...professionalData, email: e.target.value })
                     }
                   />
                 </div>
