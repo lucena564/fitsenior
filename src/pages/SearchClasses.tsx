@@ -45,13 +45,32 @@ const SearchClasses = () => {
 
       if (error) throw error;
 
+      // 2. Pega o usuário atual
+      const { data: userData } = await supabase.auth.getUser();
+      const userId = userData?.user?.id;
+
+      // 3. Busca as matrículas do usuário
+      const { data: userEnrollments } = await supabase
+        .from("enrollments")
+        .select("class_id")
+        .eq("student_id", userId);
+
+      const enrolledClassIds = userEnrollments?.map((e) => e.class_id) || [];
+
+      // 4. Filtra classes removendo as que o usuário está matriculado
+      const filteredClasses = (data || []).filter(
+        (classItem) => !enrolledClassIds.includes(classItem.id)
+      );
+
       // Get enrollment counts for each class
       const classesWithCounts = await Promise.all(
-        (data || []).map(async (classItem) => {
+        (filteredClasses || []).map(async (classItem) => {
           const { count } = await supabase
             .from("enrollments")
             .select("*", { count: "exact", head: true })
-            .eq("class_id", classItem.id);
+            .eq("class_id", classItem.id)
+
+          console.log("count ",count)
 
           return {
             ...classItem,

@@ -186,7 +186,7 @@ const ClassDetails = () => {
         .from("enrollments")
         .select("id, student_id")
         .eq("class_id", id)
-        .eq("status", "active");
+        .eq("status", "enrolled");
 
       if (enrollError) throw enrollError;
 
@@ -200,7 +200,7 @@ const ClassDetails = () => {
 
       const { data: students, error: studentsError } = await supabase
         .from("students")
-        .select("user_id, full_name, email, phone, gender, avatar_url")
+        .select("user_id, full_name, email, phone, gender")
         .in("user_id", studentIds);
 
       if (studentsError) throw studentsError;
@@ -218,7 +218,7 @@ const ClassDetails = () => {
           email: student?.email,
           phone: student?.phone,
           gender: student?.gender,
-          avatar_url: student.avatar_url,
+          avatar_url: "" //student.avatar_url,
         };
       });
 
@@ -318,7 +318,8 @@ const ClassDetails = () => {
       const { error } = await supabase.from("enrollments").insert({
         class_id: id,
         student_id: user.id,
-        status: "active",
+        user_id: user.id,
+        status: "enrolled",
       });
 
       if (error) throw error;
@@ -523,6 +524,7 @@ const ClassDetails = () => {
                                 src={mate.avatar_url}
                                 alt={`photo-of-${mate.name}`}
                               />
+                               {/* <User className="h-7 w-7 text-muted-foreground" /> */}
                               <span className="font-medium">
                                 {mate.full_name || "Aluno"}
                               </span>

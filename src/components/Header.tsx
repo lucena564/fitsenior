@@ -28,8 +28,7 @@ const Header = () => {
     { path: "/chat", label: "Mensagens" },
   ];
 
-  const navRole = role === "student" ? navItemsStudents : navItemsProfessionals;
-  const navItems = user ? navRole : navItemsUnauth;
+  const navItems = !user || role === null ? [] : role === "student" ? navItemsStudents : navItemsProfessionals;
 
   const isActive = (path: string) => location.pathname === path;
 

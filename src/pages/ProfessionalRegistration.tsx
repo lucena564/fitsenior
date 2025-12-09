@@ -19,12 +19,13 @@ import {
   FileText,
   CreditCard,
 } from "lucide-react";
+import { useAuth } from "@/context/auth";
 
 const ProfessionalRegistration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [checking, setChecking] = useState(true);
+  const [checking, setChecking] = useState(false);
   const [userId, setUserId] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     cref: "",
@@ -33,6 +34,7 @@ const ProfessionalRegistration = () => {
     specialty: "",
     cpf: "",
   });
+  const { fetchRole } = useAuth();
 
   useEffect(() => {
     const checkUser = async () => {
@@ -84,8 +86,10 @@ const ProfessionalRegistration = () => {
         description: "Seu perfil profissional foi criado com sucesso.",
       });
 
+       await fetchRole()
+
       // ✅ Mudança aqui: redireciona para /profile após cadastro
-      navigate("/profile");
+      navigate("/Dashboard");
     } catch (error: any) {
       console.error("Erro no cadastro:", error);
       toast({

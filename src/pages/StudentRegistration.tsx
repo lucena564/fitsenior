@@ -20,6 +20,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Upload } from "lucide-react";
+import { useAuth } from "@/context/auth";
 
 const StudentRegistration = () => {
   const navigate = useNavigate();
@@ -27,6 +28,7 @@ const StudentRegistration = () => {
   const [loading, setLoading] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [certificateFile, setCertificateFile] = useState<File | null>(null);
+  const { fetchRole } = useAuth();
 
   const [formData, setFormData] = useState({
     fullName: "",
@@ -147,6 +149,7 @@ const StudentRegistration = () => {
         description: "Agora você pode encontrar turmas disponíveis.",
       });
 
+      await fetchRole();
       navigate("/buscar-aulas");
     } catch (error: any) {
       toast({

@@ -46,7 +46,28 @@ const Index = () => {
 
     if (error) throw error;
 
-    if (!profile?.role) {
+    
+    const { data: dataStudent  } = await supabase
+        .from("students")
+        .select("*")
+        .eq("user_id", session.user.id)
+        .single();
+
+    const { data: dataProfessional } = await supabase
+          .from("professionals")
+          .select("*")
+          .eq("user_id", session.user.id)
+          .single();
+
+    if (dataStudent) {
+      setShowRoleSelection(false);
+    }
+
+    else if (dataProfessional) {
+      setShowRoleSelection(false);
+    }
+
+    else if (!profile?.role) {
       setShowRoleSelection(true);
     }
   } catch (error) {

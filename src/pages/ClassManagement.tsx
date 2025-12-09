@@ -97,7 +97,7 @@ const ClassManagement = () => {
         .from("enrollments")
         .select("id, student_id")
         .eq("class_id", id)
-        .eq("status", "active");
+        .eq("status", "enrolled");
 
       if (enrollError) throw enrollError;
 
@@ -109,30 +109,28 @@ const ClassManagement = () => {
       // 2. Busca perfis dos estudantes - CORRIGIDO
       const studentIds = enrollments.map((e) => e.student_id);
 
-      const { data: profiles, error: profilesError } = await supabase
-        .from("profiles")
-        .select("id, full_name")
-        .in("id", studentIds);
+      // const { data: profiles, error: profilesError } = await supabase
+      //   .from("profiles")
+      //   .select("id, full_name")
+      //   .in("id", studentIds);
 
-      if (profilesError) {
-        console.error("Error fetching profiles:", profilesError);
-      }
+      // if (profilesError) {
+      //   console.error("Error fetching profiles:", profilesError);
+      // }
 
       // 3. Se profiles está vazio, tenta buscar da tabela students
       let studentsInfo = null;
-      if (!profiles || profiles.length === 0) {
         const { data: studentsData, error: studentsError } = await supabase
           .from("students")
           .select("user_id, full_name")
           .in("user_id", studentIds);
 
         studentsInfo = studentsData;
-      }
 
       // 4. Combina dados e busca faltas
       const studentsWithAbsences = await Promise.all(
         enrollments.map(async (enrollment) => {
-          const profile = profiles?.find((p) => p.id === enrollment.student_id);
+          //const profile = profiles?.find((p) => p.id === enrollment.student_id);
           const student = studentsInfo?.find(
             (s) => s.user_id === enrollment.student_id
           );
@@ -146,7 +144,8 @@ const ClassManagement = () => {
           return {
             id: enrollment.student_id,
             enrollment_id: enrollment.id,
-            full_name: profile?.full_name || student?.full_name || "Sem nome",
+            // full_name: profile?.full_name || student?.full_name || "Sem nome",
+            full_name:  student?.full_name || "Sem nome",
             absences: count || 0,
             total_classes: 0,
             attendance_rate: 0,
